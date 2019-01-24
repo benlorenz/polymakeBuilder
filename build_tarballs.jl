@@ -24,7 +24,7 @@ ninja -v -C build/Opt -j$(( nproc / 2 ))
 g++ -shared -Wl,--as-needed --sysroot=/opt/$target/$target/sys-root -o build/Opt/lib/ideal.so -lc
 ninja -v -C build/Opt install
 # prepare paths for replacement after install
-/workspace/destdir/bin/perl -pi -e "s#${prefix}#REPLACEPREFIX#g" ${prefix}/lib/polymake/config.ninja ${prefix}/bin/polymake-config
+/workspace/destdir/bin/perl -pi -e "s#${prefix}#REPLACEPREFIX#g" ${prefix}/lib/polymake/config.ninja ${prefix}/bin/polymake-config ${prefix}/bin/polymake
 # remove sysroot argument
 /workspace/destdir/bin/perl -pi -e 's/--sysroot[= ][^ ]+//g' ${prefix}/lib/polymake/config.ninja
 # prepare rpath for binarybuilder
