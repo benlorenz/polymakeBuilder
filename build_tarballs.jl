@@ -3,12 +3,12 @@
 using BinaryBuilder
 
 name = "polymake"
-version = v"3.2.0-dev-46e2f53417"
+version = v"3.3"
 
 # Collection of sources required to build polymake
 sources = [
     "https://github.com/polymake/polymake.git" =>
-    "46e2f534177cd408e141df32a7cf81b84d09a31b",
+    "23998a2295038522d8ffee8e0715e68ea7f8c099",
 
 ]
 
@@ -17,7 +17,7 @@ script = raw"""
 cd $WORKSPACE/srcdir/polymake
 # bundled nauty needs working CPP
 export CPP=cpp
-./configure --prefix=${prefix} CFLAGS="-Wno-error=misleading-indentation" CC=gcc CXX=g++ --with-gmp=${prefix} PERL=${prefix}/bin/perl --without-native
+./configure --prefix=${prefix} CFLAGS="-Wno-error" CC=gcc CXX=g++ --with-gmp=${prefix} PERL=${prefix}/bin/perl --without-native
 ninja -v -C build/Opt -j$(( nproc / 2 ))
 # avoid having an empty shared object which binary builder doesnt like
 [ -s build/Opt/lib/ideal.so ] || \
@@ -44,15 +44,18 @@ patchelf --set-rpath "\$ORIGIN/../../../../../../.." ${prefix}/lib/polymake/perl
 platforms = [
     Linux(:x86_64, libc=:glibc, compiler_abi=CompilerABI(:gcc8))
     Linux(:x86_64, libc=:glibc, compiler_abi=CompilerABI(:gcc7))
+    Linux(:x86_64, libc=:glibc, compiler_abi=CompilerABI(:gcc6))
     Linux(:i686, libc=:glibc, compiler_abi=CompilerABI(:gcc8))
     Linux(:i686, libc=:glibc, compiler_abi=CompilerABI(:gcc7))
+    Linux(:i686, libc=:glibc, compiler_abi=CompilerABI(:gcc6))
 ]
 
 # The products that we will ensure are always built
 # TODO: we cannot use libpolymake as product as this picks up libpolymake-apps ...
 products(prefix) = [
 #    LibraryProduct(prefix, "libpolymake", :libpolymake)
-    ExecutableProduct(prefix,"polymake-config", Symbol("polymake-config"))
+    ExecutableProduct(prefix,"polymake", :polymake)
+    ExecutableProduct(prefix,"polymake-config", Symbol("polymake_config"))
 ]
 
 # Dependencies that must be installed before this package can be built
