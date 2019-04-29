@@ -60,13 +60,13 @@ products(prefix) = [
 
 # Dependencies that must be installed before this package can be built
 dependencies = [
-    "https://github.com/bicycle1885/ZlibBuilder/releases/download/v1.0.3/build_Zlib.v1.2.11.jl",
-    "https://github.com/benlorenz/XML2Builder/releases/download/v1.0.1-1/build_XML2Builder.v2.9.7.jl",
-    "https://github.com/benlorenz/boostBuilder/releases/download/v1.67.0/build_boost.v1.67.0.jl",
+    "https://github.com/bicycle1885/ZlibBuilder/releases/download/v1.0.4/build_Zlib.v1.2.11.jl",
+    "https://github.com/bicycle1885/XML2Builder/releases/download/v1.0.2/build_XML2Builder.v2.9.9.jl",
+    "https://github.com/benlorenz/boostBuilder/releases/download/v1.70.0/build_boost.v1.70.0.jl",
     "https://github.com/JuliaPackaging/Yggdrasil/releases/download/MPFR-v4.0.2-1/build_MPFR.v4.0.2.jl",
     "https://github.com/JuliaPackaging/Yggdrasil/releases/download/GMP-v6.1.2-1/build_GMP.v6.1.2.jl",
-    "https://github.com/benlorenz/perlBuilder/releases/download/v5.28.0/build_perl.v5.28.0.jl",
-    "https://github.com/benlorenz/XSLTBuilder/releases/download/v1.1.32/build_XSLTBuilder.v1.1.32.jl"
+    "https://github.com/benlorenz/perlBuilder/releases/download/v5.28.2/build_perl.v5.28.2.jl",
+    "https://github.com/benlorenz/XSLTBuilder/releases/download/v1.1.33/build_XSLTBuilder.v1.1.33.jl"
 ]
 
 # Build the tarballs, and possibly a `build.jl` as well.
