@@ -3,12 +3,12 @@
 using BinaryBuilder
 
 name = "polymake"
-version = v"3.4"
+version = v"3.5"
 
 # Collection of sources required to build polymake
 sources = [
     "https://github.com/polymake/polymake.git" =>
-    "6b81bed91f0582ec34ab1ba0d3197cfdcb36263c",
+    "63fbd5722b5a500336e01945f5423240d53f1b8f",
 
 ]
 
@@ -105,17 +105,17 @@ products(prefix) = [
 # Dependencies that must be installed before this package can be built
 dependencies = [
     "https://github.com/bicycle1885/ZlibBuilder/releases/download/v1.0.4/build_Zlib.v1.2.11.jl",
-    "https://github.com/bicycle1885/XML2Builder/releases/download/v1.0.2/build_XML2Builder.v2.9.9.jl",
+    "https://github.com/JuliaPackaging/Yggdrasil/releases/download/XML2-v2.9.9+0/build_XML2.v2.9.9.jl",
     "https://github.com/JuliaPackaging/Yggdrasil/releases/download/MPFR-v4.0.2-1/build_MPFR.v4.0.2.jl",
     "https://github.com/JuliaPackaging/Yggdrasil/releases/download/GMP-v6.1.2-1/build_GMP.v6.1.2.jl",
-    "https://github.com/benlorenz/perlBuilder/releases/download/v5.28.2/build_perl.v5.28.2.jl",
+    "https://github.com/benlorenz/perlBuilder/releases/download/v5.30.0/build_perl.v5.30.0.jl",
     "https://github.com/benlorenz/XSLTBuilder/releases/download/v1.1.33/build_XSLTBuilder.v1.1.33.jl",
     "https://github.com/benlorenz/boostBuilder/releases/download/v1.70.0/build_boost.v1.70.0.jl",
     "https://github.com/benlorenz/pplBuilder/releases/download/v1.2/build_ppl.v1.2.0.jl",
     "https://github.com/benlorenz/lrslibBuilder/releases/download/v7.0/build_lrslib.v7.0.0.jl",
     "https://github.com/benlorenz/cddlibBuilder/releases/download/v0.94.0-j-1/build_cddlib.v0.94.0-j.jl",
     "https://github.com/benlorenz/blissBuilder/releases/download/v0.73/build_bliss.v0.73.0.jl",
-    "https://github.com/benlorenz/normalizBuilder/releases/download/v3.7.2/build_normaliz.v3.7.2.jl",
+    "https://github.com/benlorenz/normalizBuilder/releases/download/v3.7.4/build_normaliz.v3.7.4.jl",
 ]
 
 # Build the tarballs, and possibly a `build.jl` as well.
