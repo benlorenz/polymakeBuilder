@@ -1,0 +1,56 @@
+# last configured with:
+configure.command=/workspace/srcdir/polymake/configure CFLAGS=-I/workspace/destdir/include CXX=clang++ LDFLAGS='-L/workspace/destdir/lib -Wl,-rpath,/workspace/destdir/lib' --with-libcxx --with-lrs-include=/workspace/destdir/include/lrslib
+root=/workspace/srcdir/polymake
+core.includes=-I${root}/include/core-wrappers -I${root}/include/core
+app.includes=-I${root}/include/app-wrappers -I${root}/include/apps -I${root}/include/external/permlib -I${root}/include/external/TOSimplex
+
+CC = clang -target x86_64-apple-darwin14 --sysroot /opt/x86_64-apple-darwin14/x86_64-apple-darwin14/sys-root
+CXX = clang++ -target x86_64-apple-darwin14 --sysroot /opt/x86_64-apple-darwin14/x86_64-apple-darwin14/sys-root
+CFLAGS = -I/workspace/destdir/include -mmacosx-version-min=10.8
+CXXFLAGS = -I/workspace/destdir/include -stdlib=libc++ -std=c++14 -mmacosx-version-min=10.8
+ARCHFLAGS = 
+CsharedFLAGS = -fPIC -pipe
+CXXOPT = -O3
+CXXDEBUG = -g
+CXXCOV = --coverage -O1
+CXXSANITIZE = -fno-omit-frame-pointer -O1 -g
+CflagsSuppressWarnings = 
+CLANGversion = 4.0
+CPPStd = 201402
+XcodeVersion = 9.1.0
+LDFLAGS = -mmacosx-version-min=10.8 -L/workspace/destdir/lib -Wl,-rpath,/workspace/destdir/lib -stdlib=libc++
+LDsharedFLAGS = -mmacosx-version-min=10.8 -dynamiclib -undefined dynamic_lookup -fstack-protector-strong
+LDcallableFLAGS = -mmacosx-version-min=10.8 -dynamiclib -undefined dynamic_lookup -fstack-protector-strong  -mmacosx-version-min=10.8 -fstack-protector-strong -L/workspace/destdir/lib
+LDsonameFLAGS = -install_name /workspace/destdir/lib/
+LIBS =  -lc++ -lmpfr -lgmp -lpthread
+LIBXML2_CFLAGS = -I/workspace/destdir/include/libxml2
+LIBXML2_LIBS = -L/workspace/destdir/lib -lxml2 -lz -lpthread -liconv -lm
+ExternalHeaders =  permlib TOSimplex
+Arch = darwin.x86_64
+BundledExts = atint bliss cdd libnormaliz lrs sympol
+BuildModes = Opt Debug
+InstallTop = /workspace/destdir/share/polymake
+InstallArch = /workspace/destdir/lib/polymake
+InstallBin = /workspace/destdir/bin
+InstallInc = /workspace/destdir/include
+InstallLib = /workspace/destdir/lib
+InstallDoc = /workspace/destdir/share/polymake/doc
+AR = ar
+GMP.version = 6.1.2
+MPFR.version = 4.0.2
+bundled.atint.RequireExtensions=
+bundled.bliss.LIBS = -lbliss
+bundled.bliss.RequireExtensions=
+bundled.cdd.UseBundled = 0
+bundled.cdd.LIBS = -lcddgmp
+bundled.cdd.RequireExtensions=
+bundled.libnormaliz.UseBundled = 0
+bundled.libnormaliz.LIBS = -lnormaliz -lgmpxx
+bundled.libnormaliz.RequireExtensions=
+bundled.lrs.UseBundled = 0
+bundled.lrs.CFLAGS =  -I/workspace/destdir/include/lrslib -DPOLYMAKE_LRS_SUPPRESS_OUTPUT=1
+bundled.lrs.LIBS = -llrs
+bundled.lrs.RequireExtensions=
+bundled.sympol.UseBundled = 1
+bundled.sympol.CXXFLAGS = -I${root}/bundled/sympol/external/sympol
+bundled.sympol.RequireExtensions=lrs cdd
