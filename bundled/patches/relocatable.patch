@@ -1,0 +1,85 @@
+diff --git a/support/configure.pl b/support/configure.pl
+index 616b11224d..e0cfed17cd 100644
+--- a/support/configure.pl
++++ b/support/configure.pl
+@@ -33,6 +33,7 @@ you can specify its location on the command line:
+ use Config;
+ use Cwd;
+ use File::Path;
++use File::Basename qw( dirname );
+ 
+ use strict 'vars', 'subs';
+ use lib "perllib";
+@@ -1710,8 +1711,9 @@ sub write_perl_specific_configuration_file {
+    my $includePerlCore = defined($XcodeVersion) && v_cmp($XcodeVersion, "10.0") >= 0 && $Config::Config{perlpath} eq "/usr/bin/perl" ? "-iwithsysroot " : "-I";
+ 
+    # fedora has ExtUtils::ParseXS in vendorlib
+-   my ($xsubpp) = grep { -e $_ } map { "$Config::Config{$_}/ExtUtils/xsubpp" } qw(privlib vendorlib);
+-   my ($typemap) = grep { -e $_ } map { "$Config::Config{$_}/ExtUtils/typemap" } qw(privlib vendorlib);
++   my $perldir = File::Basename::dirname($^X);
++   my ($xsubpp) = grep { -e $_ } map { s/\.\.\./$perldir/r } map { "$Config::Config{$_}/ExtUtils/xsubpp" } qw(privlib vendorlib);
++   my ($typemap) = grep { -e $_ } map { s/\.\.\./$perldir/r } map { "$Config::Config{$_}/ExtUtils/typemap" } qw(privlib vendorlib);
+ 
+    print $conf <<"---";
+ PERL=$Config::Config{perlpath}
+diff --git a/support/install_utils.pl b/support/install_utils.pl
+index e2950c7062..f5a1b80348 100644
+--- a/support/install_utils.pl
++++ b/support/install_utils.pl
+@@ -44,8 +44,14 @@ sub load_config_file {
+      }
+   }
+   close $cf;
+-  $root eq $values{root}
+-     or die "configuration file $config_file does not match the top directory $root\n";
++  unless ($root eq $values{root}) {
++     my $newroot = quotemeta($root);
++     my $oldroot = quotemeta($values{root});
++     warn "configuration file $config_file does not match the top directory $root - adjusting\n";
++     foreach (keys(%values)) {
++        $values{$_} =~ s/$oldroot/$newroot/g;
++     }
++  }
+   %values;
+ }
+ 
+diff --git a/support/install.pl b/support/install.pl
+index 010ea05066..7b03cafc14 100644
+--- a/support/install.pl
++++ b/support/install.pl
+@@ -552,8 +552,10 @@ sub install_bin_scripts {
+    }
+ 
+    my $init_block = <<"---";
+-   \$InstallTop='$ConfigFlags{InstallTop}';
+-   \$InstallArch='$ConfigFlags{InstallArch}';
++   use Cwd qw( abs_path );
++   use File::Basename qw( dirname );
++   \$InstallTop=abs_path(dirname(\$0)."/../share/polymake");
++   \$InstallTop=abs_path(dirname(\$0)."/../lib/polymake");
+    \$Arch="$ConfigFlags{Arch}";
+    \@BundledExts=qw(@BundledExts);
+ ---
+@@ -589,9 +591,10 @@ sub install_bin_scripts {
+       s{^\#!\S+}{#!$Config::Config{perlpath}}s;
+    }
+ 
++   s{use strict;}{use strict;\nuse Cwd qw( abs_path );\nuse File::Basename qw( dirname )};
+    s{=Version(?=;)}{=$Version};
+-   s{=InstallTop(?=;)}{='$ConfigFlags{InstallTop}'};
+-   s{=InstallArch(?=;)}{='$ConfigFlags{InstallArch}'};
++   s{=InstallTop(?=;)}{=abs_path(dirname(\$0)."/../share/polymake")};
++   s{=InstallArch(?=;)}{=abs_path(dirname(\$0)."/../lib/polymake")};
+ 
+    if (-e "$InstallBin/polymake-config") {
+       unlink "$InstallBin/polymake-config"
+@@ -641,6 +644,9 @@ sub transform_core_config_file {
+ 
+    s{[ =] -Wl,-z, \K now}{lazy}x;
+ 
++   s{[ =] -target \S+}{}x;
++   s{[ =] --sysroot \S+}{}x;
++
+    if ($buildmode eq "San") {
+       s{^\s* PERL \s*= .*\n \K}{PERLSANITIZE = $ConfigFlags{PERLSANITIZE}\n}xm;
+    }
