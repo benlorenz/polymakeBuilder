@@ -3,12 +3,12 @@
 using BinaryBuilder
 
 name = "polymake"
-version = v"3.5"
+version = v"3.6"
 
 # Collection of sources required to build polymake
 sources = [
     "https://github.com/polymake/polymake.git" =>
-    "63fbd5722b5a500336e01945f5423240d53f1b8f",
+    "5451177485349f8d52710f725994af41f6913849",
 
     "./bundled"
 ]
