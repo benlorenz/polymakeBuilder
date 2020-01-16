@@ -35,6 +35,8 @@ else
               --with-lrs=${prefix} \
               --with-bliss=${prefix} \
               --with-ppl=${prefix} \
+              --with-flint=${prefix} \
+              --with-singular=${prefix} \
               --with-libnormaliz=${prefix} \
               --without-native
 fi
@@ -84,9 +86,10 @@ fi
 # These are the platforms we will build for by default, unless further
 # platforms are passed in on the command line
 platforms = [
- Linux(:i686, libc=:glibc, compiler_abi=CompilerABI(:gcc6))
- Linux(:i686, libc=:glibc, compiler_abi=CompilerABI(:gcc7))
- Linux(:i686, libc=:glibc, compiler_abi=CompilerABI(:gcc8))
+# singular doesnt support i686
+# Linux(:i686, libc=:glibc, compiler_abi=CompilerABI(:gcc6))
+# Linux(:i686, libc=:glibc, compiler_abi=CompilerABI(:gcc7))
+# Linux(:i686, libc=:glibc, compiler_abi=CompilerABI(:gcc8))
  Linux(:x86_64, libc=:glibc, compiler_abi=CompilerABI(:gcc6))
  Linux(:x86_64, libc=:glibc, compiler_abi=CompilerABI(:gcc7))
  Linux(:x86_64, libc=:glibc, compiler_abi=CompilerABI(:gcc8))
@@ -117,6 +120,9 @@ dependencies = [
     "https://github.com/benlorenz/cddlibBuilder/releases/download/v0.94.0-j-1/build_cddlib.v0.94.0-j.jl",
     "https://github.com/benlorenz/blissBuilder/releases/download/v0.73/build_bliss.v0.73.0.jl",
     "https://github.com/benlorenz/normalizBuilder/releases/download/v3.7.4/build_normaliz.v3.7.4.jl",
+    "https://github.com/thofma/Flint2Builder/releases/download/ba0cee/build_libflint.v0.0.0-ba0ceed35136a2a43441ab9a9b2e7764e38548ea.jl",
+    "https://github.com/thofma/NTLBuilder2/releases/download/v10.5.0-1/build_libntl.v10.5.0.jl",
+    "https://github.com/wbhart/SingularBuilder/releases/download/v0.0.1/build_libsingular.v0.0.1.jl",
 ]
 
 # Build the tarballs, and possibly a `build.jl` as well.

@@ -7,7 +7,7 @@ app.includes=-I${root}/include/app-wrappers -I${root}/include/apps -I${root}/inc
 CC = clang -target x86_64-apple-darwin14 --sysroot /opt/x86_64-apple-darwin14/x86_64-apple-darwin14/sys-root
 CXX = clang++ -target x86_64-apple-darwin14 --sysroot /opt/x86_64-apple-darwin14/x86_64-apple-darwin14/sys-root
 CFLAGS = -I/workspace/destdir/include -mmacosx-version-min=10.8
-CXXFLAGS = -I/workspace/destdir/include -stdlib=libc++ -std=c++14 -mmacosx-version-min=10.8
+CXXFLAGS = -I/workspace/destdir/include -stdlib=libc++ -std=c++14 -mmacosx-version-min=10.8 -DPOLYMAKE_WITH_FLINT
 ARCHFLAGS = 
 CsharedFLAGS = -fPIC -pipe
 CXXOPT = -O3
@@ -27,7 +27,7 @@ LIBXML2_CFLAGS = -I/workspace/destdir/include/libxml2
 LIBXML2_LIBS = -L/workspace/destdir/lib -lxml2 -lz -lpthread -liconv -lm
 ExternalHeaders =  permlib TOSimplex
 Arch = darwin.x86_64
-BundledExts = atint bliss cdd libnormaliz lrs sympol
+BundledExts = atint bliss cdd flint libnormaliz lrs ppl singular sympol
 BuildModes = Opt Debug
 InstallTop = /workspace/destdir/share/polymake
 InstallArch = /workspace/destdir/lib/polymake
@@ -44,6 +44,7 @@ bundled.bliss.RequireExtensions=
 bundled.cdd.UseBundled = 0
 bundled.cdd.LIBS = -lcddgmp
 bundled.cdd.RequireExtensions=
+bundled.flint.RequireExtensions=
 bundled.libnormaliz.UseBundled = 0
 bundled.libnormaliz.LIBS = -lnormaliz -lgmpxx
 bundled.libnormaliz.RequireExtensions=
@@ -51,6 +52,13 @@ bundled.lrs.UseBundled = 0
 bundled.lrs.CFLAGS =  -I/workspace/destdir/include/lrslib -DPOLYMAKE_LRS_SUPPRESS_OUTPUT=1
 bundled.lrs.LIBS = -llrs
 bundled.lrs.RequireExtensions=
+bundled.ppl.CXXFLAGS = -Wno-class-memaccess
+bundled.ppl.LDFLAGS =
+bundled.ppl.LIBS = -lppl
+bundled.ppl.RequireExtensions=
+bundled.singular.CXXFLAGS =  -I/workspace/destdir/include -I/workspace/destdir/include/singular -DSING_NDEBUG -DOM_NDEBUG  -Wno-unused-value
+bundled.singular.LDFLAGS =
+bundled.singular.LIBS =  -lSingular -lpolys -lsingular_resources -lfactory -lomalloc -lfactory -lsingular_resources -lpolys -lomalloc -ldl
 bundled.sympol.UseBundled = 1
-bundled.sympol.CXXFLAGS = -I${root}/bundled/sympol/external/sympol
-bundled.sympol.RequireExtensions=lrs cdd
+bundled.sympol.CXXFLAGS = -I${root}/bundled/sympol/external/sympol -DPOLYMAKE_WITH_PPL
+bundled.sympol.RequireExtensions=lrs cdd ppl
