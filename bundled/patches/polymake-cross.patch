@@ -1,8 +1,8 @@
 diff --git a/support/generate_applib_fake.pl b/support/generate_applib_fake.pl
-index 622a35cc..1f8d3ba0 100644
+index 3b6762df05..a671fd1c6b 100644
 --- a/support/generate_applib_fake.pl
 +++ b/support/generate_applib_fake.pl
-@@ -20,7 +20,7 @@ use strict;
+@@ -21,7 +21,7 @@ use strict;
  use Config;
  
  my @out;
@@ -11,7 +11,7 @@ index 622a35cc..1f8d3ba0 100644
  
  for my $shlib (@ARGV) {
     -r $shlib or die "shared module $shlib does not exist or unreadable\n";
-@@ -35,7 +35,7 @@ for my $shlib (@ARGV) {
+@@ -36,7 +36,7 @@ for my $shlib (@ARGV) {
  
     while (<SYMS>) {
        if (/ [TW] ([_ZNK]+$prefix\w+)$/) {
@@ -20,7 +20,7 @@ index 622a35cc..1f8d3ba0 100644
  	      my $functionname = $1;
  	      $functionname =~ s/^__/_/;
  	      push @out, "void $functionname() {};\n";
-@@ -48,14 +48,14 @@ for my $shlib (@ARGV) {
+@@ -49,14 +49,14 @@ for my $shlib (@ARGV) {
  }
  
  if (@out) {
@@ -38,10 +38,10 @@ index 622a35cc..1f8d3ba0 100644
     }
     print "#ifdef POLYMAKE_FAKE_FUNCTIONS\n", @out, "#endif\n";
 diff --git a/support/generate_cpperl_modules.pl b/support/generate_cpperl_modules.pl
-index 5c7dca30..df33e3e9 100644
+index dda9bf7d3c..daf723ecc3 100644
 --- a/support/generate_cpperl_modules.pl
 +++ b/support/generate_cpperl_modules.pl
-@@ -19,8 +19,8 @@
+@@ -20,8 +20,8 @@
  package Polymake::GenerateCppPerl;
  
  use strict;
@@ -50,9 +50,9 @@ index 5c7dca30..df33e3e9 100644
 +use JSON::Tiny 'from_json';
 +#use Fcntl ':flock';
  
- my $default_chunk_size=40;
+ my $default_chunk_size = 40;
  my ($temp_module, $ext_config, $allow_report_config_file_dependency);
-@@ -47,8 +47,6 @@ if (@ARGV >= 2) {
+@@ -48,8 +48,6 @@ if (@ARGV >= 2) {
     if (@update) {
        open my $R, ">>", $gen_rules
          or die "can't append to $gen_rules: $!\n";
@@ -61,7 +61,7 @@ index 5c7dca30..df33e3e9 100644
        print $R "#\@update @update\n";
     }
  } else {
-@@ -179,7 +177,8 @@ sub read_def_file {
+@@ -180,7 +178,8 @@ sub read_def_file {
     local $/;
     open my $in, "<:utf8", $def_file
       or die "can't read definition file $def_file: $!\n";
@@ -72,10 +72,10 @@ index 5c7dca30..df33e3e9 100644
  
  sub distinct {
 diff --git a/support/generate_ninja_targets.pl b/support/generate_ninja_targets.pl
-index 0a19e9d0..db7f3665 100644
+index f084af2a08..24bab37d0f 100644
 --- a/support/generate_ninja_targets.pl
 +++ b/support/generate_ninja_targets.pl
-@@ -127,7 +127,7 @@ sub process_app_sources {
+@@ -128,7 +128,7 @@ sub process_app_sources {
  
        my $ignore_sources = delete $custom_flags{IGNORE};
  
@@ -84,7 +84,7 @@ index 0a19e9d0..db7f3665 100644
           my ($src_name, $obj_name)=basename($src_file, "(?:cc|cpp|C)");
           push @all_source_files, $src_file;
           next if $ignore_sources->{$src_name};
-@@ -160,7 +160,7 @@ build $obj_file : cxxcompile $src_file_in_rules$pre_gen
+@@ -161,7 +161,7 @@ build $obj_file : cxxcompile $src_file_in_rules$pre_gen
           }
        }
  
@@ -93,29 +93,38 @@ index 0a19e9d0..db7f3665 100644
           my $src_file_in_rules= $src_file =~ s/^\Q$srcroot\E/$srcrootname/r;
           if (defined (my $def_file=$cpperl_mods{$src_file_in_rules})) {
              # cpperl definition exists - check the main C++ module
-@@ -369,7 +369,7 @@ sub generate_targets {
+@@ -370,7 +370,7 @@ sub generate_targets {
          or die "can't write to $bundled_flags: $!\n";
        foreach my $bundled (@bundled_rev) {
-          my @look_in=($bundled, $ConfigFlags{"bundled.$bundled.RequireExtensions"} =~ /(\S+)/g);
--         my @includes=glob("$root/bundled/{".join(",", @look_in)."}/include/app*");
+          my @look_in = ($bundled, $ConfigFlags{"bundled.$bundled.RequireExtensions"} =~ /(\S+)/g);
+-         my @includes = glob("$root/bundled/{".join(",", @look_in)."}/include/app*");
 +         my @includes= grep { -d $_ } map {glob("$root/bundled/$_/include/app*")} @look_in;
           s/^\Q$root\E/$srcrootname/ for @includes;
           print $B "bundled.$bundled.includes=", (map { " -I$_" } @includes), "\n\n";
        }
+@@ -500,7 +500,7 @@ build install : install_core || all $install_deps
+       my @bundled_config_scripts = map { s/^\Q$root\E/$srcrootname/r } grep { -f }
+                                    map { "$root/bundled/$_/support/configure.pl" } @bundled;
+       print <<"---";
+-build \${config.file}: reconfigure | \${root}/support/configure.pl @bundled_config_scripts
++# build \${config.file}: reconfigure | \${root}/support/configure.pl @bundled_config_scripts
+ ---
+    } else {
+       if (-f "$srcroot/support/rules.ninja") {
 diff --git a/support/install.pl b/support/install.pl
-index 2adfbb51..6f363dba 100644
+index 010ea05066..6cd94a0204 100644
 --- a/support/install.pl
 +++ b/support/install.pl
-@@ -17,7 +17,7 @@ use strict;
+@@ -18,7 +18,7 @@ use strict;
  use feature 'state';
- use vars qw( $dirmode $group $permmask $root $ext_root $buildroot $config_file %ConfigFlags $buildmode
+ use vars qw( $dirmode $group $permmask $root $ext_root $builddir $config_file %ConfigFlags $buildmode
               $xsmod @callable @fakelibs );
 -use POSIX qw ( :fcntl_h read write lseek );
 +#use POSIX qw ( :fcntl_h read write lseek );
  use File::Path;
  use Config;
  
-@@ -135,7 +135,7 @@ sub install_core {
+@@ -136,7 +136,7 @@ sub install_core {
        }
     }
  
@@ -151,31 +160,31 @@ index 2adfbb51..6f363dba 100644
              # This symlink is also used by the callable library bootstrap module.
              rel_symlink($to, "$InstallLib/$basename");
           }
-@@ -377,35 +377,38 @@ sub copy {
-    my ($fmode, $mtime)=(stat $from)[2,9];
+@@ -373,35 +373,37 @@ sub copy {
+    my ($fmode, $mtime) = (stat $from)[2, 9];
     if (defined $mode) {
        # verbatim copy: assuming binary file
--      my $in=POSIX::open $from, O_RDONLY;
+-      my $in = POSIX::open $from, O_RDONLY;
 -      defined($in)
 -         or die "$0: can't read $from: $!\n";
--      my $dummy=O_WRONLY+O_CREAT+O_TRUNC; # bug in AutoLoader!
+-      my $dummy = O_WRONLY + O_CREAT + O_TRUNC;  # bug in AutoLoader!
 -      my $out;
 -      if ($concat) {
 -         open $out, ">>$to";
 -      } else {
--         $out=creat $to, 0600;
+-         $out = creat $to, 0600;
 -      }
 -      defined($out)
 -         or die "$0: can't create $to: $!\n";
 -
 -      my $trailing_zeroes;
--      while ((my $size=read $in, $_, 1024)>0) {
--         if ($_ eq ($size==1024 ? $z1024 : pack("x$size"))) {
+-      while ((my $size = read $in, $_, 1024) > 0) {
+-         if ($_ eq ($size == 1024 ? $z1024 : pack("x$size"))) {
 -            lseek $out, $size, SEEK_CUR;
--            $trailing_zeroes=1;
+-            $trailing_zeroes = 1;
 -         } else {
 -            write $out, $_, $size;
--            $trailing_zeroes=0;
+-            $trailing_zeroes = 0;
 -         }
 -      }
 -      if ($trailing_zeroes) {
@@ -184,27 +193,27 @@ index 2adfbb51..6f363dba 100644
 -      }
 -      POSIX::close $in;
 -      POSIX::close $out;
-+      #my $in=POSIX::open $from, O_RDONLY;
++      #my $in = POSIX::open $from, O_RDONLY;
 +      #defined($in)
 +      #   or die "$0: can't read $from: $!\n";
-+      #my $dummy=O_WRONLY+O_CREAT+O_TRUNC; # bug in AutoLoader!
++      #my $dummy = O_WRONLY + O_CREAT + O_TRUNC;  # bug in AutoLoader!
 +      #my $out;
 +      #if ($concat) {
 +      #   open $out, ">>$to";
 +      #} else {
-+      #   $out=creat $to, 0600;
++      #   $out = creat $to, 0600;
 +      #}
 +      #defined($out)
 +      #   or die "$0: can't create $to: $!\n";
 +
 +      #my $trailing_zeroes;
-+      #while ((my $size=read $in, $_, 1024)>0) {
-+      #   if ($_ eq ($size==1024 ? $z1024 : pack("x$size"))) {
++      #while ((my $size = read $in, $_, 1024) > 0) {
++      #   if ($_ eq ($size == 1024 ? $z1024 : pack("x$size"))) {
 +      #      lseek $out, $size, SEEK_CUR;
-+      #      $trailing_zeroes=1;
++      #      $trailing_zeroes = 1;
 +      #   } else {
 +      #      write $out, $_, $size;
-+      #      $trailing_zeroes=0;
++      #      $trailing_zeroes = 0;
 +      #   }
 +      #}
 +      #if ($trailing_zeroes) {
@@ -214,13 +223,12 @@ index 2adfbb51..6f363dba 100644
 +      #POSIX::close $in;
 +      #POSIX::close $out;
 +
-+      ##Usage: install [-cdDsp] [-o USER] [-g GRP] [-m MODE] [-t DIR] [SOURCE]... DEST
 +      system("install -m 0600 $from $to");
  
-       if (my $lib_id=$options{lib_id}) {
-          substr($lib_id, 0, length($destdir))="";
-@@ -549,7 +552,7 @@ sub install_bin_scripts {
-    $_=<S>;
+       if (my $lib_id = $options{lib_id}) {
+          substr($lib_id, 0, length($destdir)) = "";
+@@ -545,7 +547,7 @@ sub install_bin_scripts {
+    $_ = <S>;
     close S;
  
 -   if ($^O eq "darwin" && $ConfigFlags{ARCHFLAGS} =~ /-arch /) {
@@ -228,7 +236,7 @@ index 2adfbb51..6f363dba 100644
        s{^\#!/usr/bin/env perl}{#!/usr/bin/arch $ConfigFlags{ARCHFLAGS} $^X}s;
     } else {
        s{^\#!/usr/bin/env perl}{#!$Config::Config{perlpath}}s;
-@@ -561,7 +564,7 @@ sub install_bin_scripts {
+@@ -557,7 +559,7 @@ sub install_bin_scripts {
     \$Arch="$ConfigFlags{Arch}";
     \@BundledExts=qw(@BundledExts);
  ---
@@ -237,8 +245,8 @@ index 2adfbb51..6f363dba 100644
        $init_block.="   \@addlibs=qw($ConfigFlags{FinkBase}/lib/perl5);\n";
     }
     s/(^BEGIN\s*\{\s*\n)(?s:.*?)(^\}\n)/$1$init_block$2/m;
-@@ -587,7 +590,7 @@ sub install_bin_scripts {
-    $_=<S>;
+@@ -583,7 +585,7 @@ sub install_bin_scripts {
+    $_ = <S>;
     close S;
  
 -   if ($^O eq "darwin" && $ConfigFlags{ARCHFLAGS} =~ /-arch /) {
