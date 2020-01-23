@@ -22,9 +22,7 @@ LDFLAGS = -mmacosx-version-min=10.8 -L/workspace/destdir/lib -Wl,-rpath,/workspa
 LDsharedFLAGS = -mmacosx-version-min=10.8 -dynamiclib -undefined dynamic_lookup -fstack-protector-strong
 LDcallableFLAGS = -mmacosx-version-min=10.8 -dynamiclib -undefined dynamic_lookup -fstack-protector-strong  -mmacosx-version-min=10.8 -fstack-protector-strong -L/workspace/destdir/lib
 LDsonameFLAGS = -install_name /workspace/destdir/lib/
-LIBS =  -lc++ -lmpfr -lgmp -lpthread
-LIBXML2_CFLAGS = -I/workspace/destdir/include/libxml2
-LIBXML2_LIBS = -L/workspace/destdir/lib -lxml2 -lz -lpthread -liconv -lm
+LIBS =  -lc++ -lflint -lmpfr -lgmp -lpthread
 ExternalHeaders =  permlib TOSimplex
 Arch = darwin.x86_64
 BundledExts = atint bliss cdd flint libnormaliz lrs ppl singular sympol

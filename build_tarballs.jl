@@ -3,19 +3,23 @@
 using BinaryBuilder
 
 name = "polymake"
-version = v"3.6"
+version = v"4.0"
 
 # Collection of sources required to build polymake
 sources = [
-    "https://github.com/polymake/polymake.git" =>
-    "5451177485349f8d52710f725994af41f6913849",
+    "https://polymake.org/downloads/polymake-4.0-minimal-testing.tar.bz2" =>
+    "c2f901f07558a011b1fd0635008b83809d7e2cb3a96654d692fb8ef63df82a89",
+#    "https://github.com/polymake/polymake.git" =>
+#    "5451177485349f8d52710f725994af41f6913849",
 
     "./bundled"
 ]
 
 # Bash recipe for building across all platforms
 script = raw"""
-cd $WORKSPACE/srcdir/polymake
+cd $WORKSPACE/srcdir/
+mv polymake-* polymake
+cd polymake
 if [[ $target == *darwin* ]]; then
   mkdir -p build/Opt
   cp ../config/config-$target.ninja build/config.ninja
@@ -46,7 +50,10 @@ ninja -v -C build/Opt -j$(( nproc / 2 ))
 [ -s build/Opt/lib/ideal.$dlext ] || \
 $CXX -shared --sysroot=/opt/$target/$target/sys-root -o build/Opt/lib/ideal.$dlext -lc
 ninja -v -C build/Opt install
-git checkout support/*.pl
+if [[ $target == *darwin* ]]; then
+# undo patch needed for building
+atomic_patch -R -p1 ../patches/polymake-cross.patch
+fi
 install -m 444 -D support/*.pl $prefix/share/polymake/support/
 
 # avoid conflicts between different perls
@@ -78,8 +85,6 @@ if [[ $target == *linux* ]]; then
   done
   patchelf --set-rpath "\$ORIGIN/../../../../../../.." ${prefix}/lib/polymake/perlx/*/*/auto/Polymake/Ext/Ext.so
 fi
-# tests need Time::HiRes ...
-# /workspace/destdir/bin/perl perl/polymake --script run_testcases --examples '*'
 
 """
 
@@ -106,14 +111,11 @@ products(prefix) = [
 
 # Dependencies that must be installed before this package can be built
 dependencies = [
-    "https://github.com/bicycle1885/ZlibBuilder/releases/download/v1.0.4/build_Zlib.v1.2.11.jl",
-    "https://github.com/JuliaPackaging/Yggdrasil/releases/download/XML2-v2.9.9+0/build_XML2.v2.9.9.jl",
     "https://github.com/JuliaPackaging/Yggdrasil/releases/download/MPFR-v4.0.2-1/build_MPFR.v4.0.2.jl",
     "https://github.com/JuliaPackaging/Yggdrasil/releases/download/GMP-v6.1.2-1/build_GMP.v6.1.2.jl",
     "https://github.com/benlorenz/readlineBuilder/releases/download/v8.0/build_readline.v8.0.0.jl",
     "https://github.com/benlorenz/ncursesBuilder/releases/download/v6.1/build_ncurses.v6.1.0.jl",
-    "https://github.com/benlorenz/perlBuilder/releases/download/v5.30.0-1/build_perl.v5.30.0.jl",
-    "https://github.com/benlorenz/XSLTBuilder/releases/download/v1.1.33/build_XSLTBuilder.v1.1.33.jl",
+    "https://github.com/benlorenz/perlBuilder/releases/download/v5.30.0-2/build_perl.v5.30.0.jl",
     "https://github.com/benlorenz/boostBuilder/releases/download/v1.71.0/build_boost.v1.71.0.jl",
     "https://github.com/benlorenz/pplBuilder/releases/download/v1.2/build_ppl.v1.2.0.jl",
     "https://github.com/benlorenz/lrslibBuilder/releases/download/v7.0/build_lrslib.v7.0.0.jl",
