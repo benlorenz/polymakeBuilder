@@ -3,12 +3,12 @@
 using BinaryBuilder
 
 name = "polymake"
-version = v"4.0"
+version = v"4.0r1"
 
 # Collection of sources required to build polymake
 sources = [
     "https://github.com/polymake/polymake.git" =>
-    "8e87a996965001f588259205da2448d05a3c6f81",
+    "a5e18b015e06e6a7785312910f8d9ee561c52fac",
 
     "./bundled"
 ]
@@ -118,9 +118,9 @@ dependencies = [
     "https://github.com/benlorenz/cddlibBuilder/releases/download/v0.94.0-j-1/build_cddlib.v0.94.0-j.jl",
     "https://github.com/benlorenz/blissBuilder/releases/download/v0.73/build_bliss.v0.73.0.jl",
     "https://github.com/benlorenz/normalizBuilder/releases/download/v3.7.4/build_normaliz.v3.7.4.jl",
-    "https://github.com/thofma/Flint2Builder/releases/download/ba0cee/build_libflint.v0.0.0-ba0ceed35136a2a43441ab9a9b2e7764e38548ea.jl",
+    "https://github.com/thofma/Flint2Builder/releases/download/dd1021/build_libflint.v0.0.0-dd1021a6cbaca75d94e6e066c26a3a5622884a7c.jl",
     "https://github.com/thofma/NTLBuilder2/releases/download/v10.5.0-1/build_libntl.v10.5.0.jl",
-    "https://github.com/wbhart/SingularBuilder/releases/download/v0.0.1/build_libsingular.v0.0.1.jl",
+    "https://github.com/wbhart/SingularBuilder/releases/download/0.0.2/build_libsingular.v0.0.1-2.jl",
 ]
 
 # Build the tarballs, and possibly a `build.jl` as well.
