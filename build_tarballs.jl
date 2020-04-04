@@ -60,43 +60,13 @@ atomic_patch -R -p1 ../patches/polymake-cross.patch
 fi
 install -m 444 -D support/*.pl $prefix/share/polymake/support/
 
-# avoid conflicts between different perls
-unset PERL5LIB
-rm -f $prefix/lib/libperl.$dlext
-
-# put automatic path detection in polymake and polymake-config
-#/usr/bin/perl -pi -e 's#^   \$InstallTop.*#   use Cwd qw( abs_path );\n   use File::Basename qw( dirname );\n   \$InstallTop=abs_path(dirname(\$0)."/../share/polymake");#g' ${prefix}/bin/polymake
-#/usr/bin/perl -pi -e 's#^   \$InstallArch.*#   \$InstallArch=abs_path(dirname(\$0)."/../lib/polymake");#g' ${prefix}/bin/polymake
-#/usr/bin/perl -pi -e 's#^my \$InstallArch.*#use Cwd qw( abs_path );\nuse File::Basename qw( dirname );\nmy \$InstallArch=abs_path(dirname(\$0)."/../lib/polymake");#g' ${prefix}/bin/polymake-config
-
-# FIXME: we need a working config.ninja for building wrappers...
-#/usr/bin/perl -pi -e "s#${prefix}#REPLACEPREFIX#g" ${prefix}/lib/polymake/config.ninja
-
 # replace miniperl
-/usr/bin/perl -pi -e "s#miniperl-for-build#perl#" ${prefix}/lib/polymake/config.ninja ${prefix}/bin/polymake*
-
-# remove sysroot and target argument
-#/usr/bin/perl -pi -e 's/--sysroot[= ][^\s]+//g' ${prefix}/lib/polymake/config.ninja
-#/usr/bin/perl -pi -e 's/-target[= ][^\s]+//g' ${prefix}/lib/polymake/config.ninja
-
-# remove path and arch from compiler command
-# TODO: at some point we should have a binarybuilder provided compiler?
-#if [[ "$CC" == *"clang"* ]]; then
-#  /usr/bin/perl -pi -e 's/^CC = \S+/CC = clang/g' ${prefix}/lib/polymake/config.ninja
-#  /usr/bin/perl -pi -e 's/^CXX = \S+/CXX = clang++/g' ${prefix}/lib/polymake/config.ninja
-#else
-#  /usr/bin/perl -pi -e 's/^CC = \S+/CC = gcc/g' ${prefix}/lib/polymake/config.ninja
-#  /usr/bin/perl -pi -e 's/^CXX = \S+/CXX = g++/g' ${prefix}/lib/polymake/config.ninja
-#fi
-# prepare rpath for binarybuilder
-# to check: do we need this for darwin?
-#if [[ $target == *linux* ]]; then
-#  patchelf --set-rpath $(patchelf --print-rpath ${prefix}/lib/libpolymake.so | sed -e "s#${prefix}/lib/#\$ORIGIN/#g") ${prefix}/lib/libpolymake.so
-#  for lib in ${prefix}/lib/polymake/lib/*.so; do
-#    patchelf --set-rpath "\$ORIGIN/../.." $lib;
-#  done
-#  patchelf --set-rpath "\$ORIGIN/../../../../../../.." ${prefix}/lib/polymake/perlx/*/*/auto/Polymake/Ext/Ext.so
-#fi
+sed -i -e "s/miniperl-for-build/perl/" ${libdir}/polymake/config.ninja ${bindir}/polymake*
+# replace binary path with env
+sed -i -e "s#$bindir/perl#/usr/bin/env perl#g" ${libdir}/polymake/config.ninja ${bindir}/polymake*
+# remove target and sysroot
+sed -i -e "s#--sysroot[ =]\S\+##g" ${libdir}/polymake/config.ninja
+sed -i -e "s#-target[ =]\S\+##g" ${libdir}/polymake/config.ninja
 
 """
 
