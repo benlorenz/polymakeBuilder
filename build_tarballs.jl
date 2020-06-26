@@ -3,11 +3,11 @@
 using BinaryBuilder, Pkg
 
 name = "polymake"
-version = v"4.0r1"
+version = v"4.1"
 
 # Collection of sources required to build polymake
 sources = [
-    GitSource("https://github.com/polymake/polymake.git", "a5e18b015e06e6a7785312910f8d9ee561c52fac")
+    GitSource("https://github.com/polymake/polymake.git", "8704ebbba9f8cc2b07f824a283ffed49a8c036be")
     DirectorySource("./bundled")
 ]
 
@@ -15,22 +15,20 @@ sources = [
 script = raw"""
 cd $WORKSPACE/srcdir/polymake
 
-# workaround CompilerSupportLibraries issue with new gcc
-rm "${libdir}"/libstdc++*
+perl_version=5.30.3
 
-atomic_patch -p1 ../patches/cdd.patch
 atomic_patch -p1 ../patches/relocatable.patch
 if [[ $target == *darwin* ]]; then
   # we cannot run configure and instead provide config files
   mkdir -p build/Opt
+  mkdir -p build/perlx/$perl_version/apple-darwin14
   cp ../config/config-$target.ninja build/config.ninja
   cp ../config/build-Opt-$target.ninja build/Opt/build.ninja
   cp ../config/targets.ninja build/targets.ninja
   ln -s ../config.ninja build/Opt/config.ninja
-  mkdir -p build/perlx/5.30.0/apple-darwin14
-  cp ../config/perlx-config-$target.ninja build/perlx/5.30.0/apple-darwin14/config.ninja
-  # for a modified JSON module and to make miniperl find the correct modules
-  export PERL5LIB=/workspace/destdir/lib/perl5/5.30.0:/workspace/destdir/lib/perl5/5.30.0/darwin-2level:/workspace/srcdir/patches
+  cp ../config/perlx-config-$target.ninja build/perlx/$perl_version/apple-darwin14/config.ninja
+  # for a modified pure perl JSON module and to make miniperl find the correct modules
+  export PERL5LIB=$prefix/lib/perl5/$perl_version:$prefix/lib/perl5/$perl_version/darwin-2level:$WORKSPACE/srcdir/patches
   atomic_patch -p1 ../patches/polymake-cross.patch
 else
   ./configure CFLAGS="-Wno-error" CC="$CC" CXX="$CXX" \
@@ -47,16 +45,14 @@ else
               --without-native
 fi
 
-ninja -v -C build/Opt -j$(( nproc / 2 ))
-# avoid having an empty shared object which binary builder doesnt like
-[ -s build/Opt/lib/ideal.$dlext ] || \
-$CXX -shared --sysroot=/opt/$target/$target/sys-root -o build/Opt/lib/ideal.$dlext -lc
+ninja -v -C build/Opt -j8
+# $(( nproc / 2 ))
 
 ninja -v -C build/Opt install
 
 # undo patch needed for building
 if [[ $target == *darwin* ]]; then
-atomic_patch -R -p1 ../patches/polymake-cross.patch
+  atomic_patch -R -p1 ../patches/polymake-cross.patch
 fi
 install -m 444 -D support/*.pl $prefix/share/polymake/support/
 
@@ -68,15 +64,16 @@ sed -i -e "s#$bindir/perl#/usr/bin/env perl#g" ${libdir}/polymake/config.ninja $
 sed -i -e "s#--sysroot[ =]\S\+##g" ${libdir}/polymake/config.ninja
 sed -i -e "s#-target[ =]\S\+##g" ${libdir}/polymake/config.ninja
 
+install_license COPYING
 """
 
 # These are the platforms we will build for by default, unless further
 # platforms are passed in on the command line
 platforms = expand_cxxstring_abis([
- Linux(:x86_64, libc=:glibc, compiler_abi=CompilerABI(libstdcxx_version = v"3.4.23"))
- Linux(:x86_64, libc=:glibc, compiler_abi=CompilerABI(libstdcxx_version = v"3.4.25"))
- Linux(:x86_64, libc=:glibc, compiler_abi=CompilerABI(libstdcxx_version = v"3.4.26"))
  MacOS(:x86_64)
+ Linux(:x86_64, libc=:glibc, compiler_abi=CompilerABI(libstdcxx_version = v"3.4.23", cxxstring_abi=:cxx11))
+ Linux(:x86_64, libc=:glibc, compiler_abi=CompilerABI(libstdcxx_version = v"3.4.25", cxxstring_abi=:cxx11))
+ Linux(:x86_64, libc=:glibc, compiler_abi=CompilerABI(libstdcxx_version = v"3.4.26", cxxstring_abi=:cxx11))
 ])
 
 # The products that we will ensure are always built
@@ -94,16 +91,16 @@ dependencies = [
     Dependency(PackageSpec(name="boost_jll", uuid="28df3c45-c428-5900-9ff8-a3135698ca75"))
     Dependency(PackageSpec(name="CompilerSupportLibraries_jll", uuid="e66e0078-7015-5450-92f7-15fbd957f2ae"))
     Dependency(PackageSpec(name="lrslib_jll", uuid="3873f7d0-7b7c-52c3-bdf4-8ab39b8f337a"))
-    Dependency(PackageSpec(name="normaliz_jll", uuid="6690c6e9-4e12-53b8-b8fd-4bffaef8839f"))
     Dependency(PackageSpec(name="PPL_jll", uuid="80dd9cbb-8b87-5171-a280-372cc418f402"))
     Dependency(PackageSpec(name="cddlib_jll", uuid="f07e07eb-5685-515a-97c8-3014f6152feb"))
-    Dependency(PackageSpec(name="FLINT_jll", uuid="e134572f-a0d5-539d-bddf-3cad8db41a82"))
+    Dependency(PackageSpec(name="FLINT_jll", uuid="e134572f-a0d5-539d-bddf-3cad8db41a82",version=v"0.0.2"))
+    # normaliz fixed to 3.8.4 until switch to flint 2.6
+    Dependency(PackageSpec(name="normaliz_jll", uuid="6690c6e9-4e12-53b8-b8fd-4bffaef8839f", version=v"3.8.4"))
     Dependency(PackageSpec(name="bliss_jll", uuid="508c9074-7a14-5c94-9582-3d4bc1871065"))
 
     # local
-    Dependency(PackageSpec(name="perl_jll", uuid="454b57e5-be5b-5d2e-8b87-0c7c7d0dfe4b"))
-
-    #"singular_jll", #FIXME: not yet as artifact
+    Dependency(PackageSpec(name="Perl_jll", uuid="83958c19-0796-5285-893e-a1267f8ec499",url="https://github.com/benlorenz/Perl_jll.jl"))
+    #, version=v"5.30.3"))
 ]
 
 # Build the tarballs, and possibly a `build.jl` as well.

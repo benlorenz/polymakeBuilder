@@ -142,3 +142,16 @@ index 4a11f833bb..c27e284774 100644
     int argc = sizeof(perl_start_args) / sizeof(perl_start_args[0])-1;
     const char** argv = perl_start_args;
     char *** const env = PmGetEnvironPtr;
+diff --git a/perllib/Polymake/Core/CPlusPlusGenerator.pm b/perllib/Polymake/Core/CPlusPlusGenerator.pm
+index 8ba9419499..2c9abe8a8d 100644
+--- a/perllib/Polymake/Core/CPlusPlusGenerator.pm
++++ b/perllib/Polymake/Core/CPlusPlusGenerator.pm
+@@ -936,7 +936,7 @@ sub write_temp_build_ninja_file {
+    print $conf <<"---";
+ config.file=$InstallArch/config.ninja
+ include \${config.file}
+-PERL=$Config::Config{perlpath}
++PERL=$^X
+ ---
+    my $cxxflags = "-DPOLYMAKE_APPNAME=".$app->name;
+    my $cxxincludes = '${app.includes} ${core.includes}';
