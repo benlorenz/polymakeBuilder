@@ -3,7 +3,7 @@
 using BinaryBuilder, Pkg
 
 name = "polymake"
-version = v"4.1.1"
+version = v"4.1.2"
 
 # Collection of sources required to build polymake
 sources = [
@@ -82,15 +82,15 @@ install_license COPYING
 
 # These are the platforms we will build for by default, unless further
 # platforms are passed in on the command line
-platforms = expand_cxxstring_abis([
- MacOS(:x86_64)
- Linux(:x86_64, libc=:glibc)
- Linux(:i686, libc=:glibc)
-])
+platforms = [
+ MacOS(:x86_64, compiler_abi=CompilerABI(cxxstring_abi=:cxx11)),
+ Linux(:x86_64, libc=:glibc, compiler_abi=CompilerABI(cxxstring_abi=:cxx11)),
+]
 
 # The products that we will ensure are always built
 products = [
     LibraryProduct("libpolymake", :libpolymake; dont_dlopen=true)
+    LibraryProduct("libpolymake-apps-rt", :libpolymake_apps_rt; dont_dlopen=true)
     ExecutableProduct("polymake", :polymake)
     ExecutableProduct("polymake-config", Symbol("polymake_config"))
 ]
