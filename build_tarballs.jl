@@ -17,6 +17,11 @@ cd $WORKSPACE/srcdir/polymake
 
 perl_version=5.30.3
 
+mkdir -p ${prefix}/deps
+for dir in Perl boost GMP MPFR cddlib lrslib bliss PPL FLINT normaliz; do
+   ln -s .. ${prefix}/deps/${dir}_jll
+done
+
 atomic_patch -p1 ../patches/relocatable.patch
 if [[ $target == *darwin* ]]; then
   # we cannot run configure and instead provide config files
@@ -33,16 +38,18 @@ if [[ $target == *darwin* ]]; then
   atomic_patch -p1 ../patches/polymake-cross-build.patch
 else
   ./configure CFLAGS="-Wno-error" CC="$CC" CXX="$CXX" \
-              PERL=${prefix}/bin/perl LDFLAGS="$LDFLAGS" \
+              PERL=${prefix}/deps/Perl_jll/bin/perl LDFLAGS="$LDFLAGS" \
               --prefix=${prefix} \
-              --with-gmp=${prefix} \
-              --with-cdd=${prefix} \
-              --with-lrs=${prefix} \
-              --with-bliss=${prefix} \
-              --with-ppl=${prefix} \
-              --with-flint=${prefix} \
+              --with-boost=${prefix}/deps/boost_jll \
+              --with-gmp=${prefix}/deps/GMP_jll \
+              --with-mpfr=${prefix}/deps/MPFR_jll \
+              --with-cdd=${prefix}/deps/cddlib_jll \
+              --with-lrs=${prefix}/deps/lrslib_jll \
+              --with-bliss=${prefix}/deps/bliss_jll \
+              --with-ppl=${prefix}/deps/PPL_jll \
+              --with-flint=${prefix}/deps/FLINT_jll \
+              --with-libnormaliz=${prefix}/deps/normaliz_jll \
               --without-singular \
-              --with-libnormaliz=${prefix} \
               --without-native
 fi
 
@@ -64,6 +71,11 @@ sed -i -e "s#$bindir/perl#/usr/bin/env perl#g" ${libdir}/polymake/config.ninja $
 # remove target and sysroot
 sed -i -e "s#--sysroot[ =]\S\+##g" ${libdir}/polymake/config.ninja
 sed -i -e "s#-target[ =]\S\+##g" ${libdir}/polymake/config.ninja
+
+sed -e "s#${prefix}#\${prefix}#g" ${libdir}/polymake/config.ninja > ${libdir}/polymake/config-reloc.ninja
+
+# cleanup
+rm -rf ${prefix}/deps
 
 install_license COPYING
 """
@@ -99,5 +111,33 @@ dependencies = [
 ]
 
 # Build the tarballs, and possibly a `build.jl` as well.
-build_tarballs(ARGS, name, version, sources, script, platforms, products, dependencies; preferred_gcc_version=v"7")
+build_tarballs(ARGS, name, version, sources, script, platforms, products, dependencies; preferred_gcc_version=v"7", init_block="""
+
+   mutable_artifacts_toml = joinpath(dirname(@__DIR__), "MutableArtifacts.toml")
+   polymake_tree = "polymake_tree"
+   polymake_tree_hash = artifact_hash(polymake_tree, mutable_artifacts_toml)
+   if polymake_tree_hash != nothing
+      unbind_artifact!(mutable_artifacts_toml,polymake_deps)
+   end
+
+   # create a partial polymake tree with links to dependencies
+   polymake_tree_hash = create_artifact() do art_dir
+      mkpath(joinpath(art_dir,"deps"))
+      # maybe we need more?
+      for dep in [GMP_jll, MPFR_jll, FLINT_jll, boost_jll, lrslib_jll, cddlib_jll, normaliz_jll, bliss_jll, Perl_jll, PPL_jll]
+         symlink(dep.artifact_dir, joinpath(art_dir,"deps","\$dep"))
+      end
+      for dir in readdir(polymake_jll.artifact_dir)
+         symlink(joinpath(polymake_jll.artifact_dir,dir), joinpath(art_dir,dir))
+      end
+   end
+   bind_artifact!(mutable_artifacts_toml,
+      polymake_tree,
+      polymake_tree_hash;
+      force=true
+   )
+
+   # Point polymake to our custom tree
+   ENV["POLYMAKE_DEPS_TREE"] = artifact_path(polymake_tree_hash)
+""")
 
